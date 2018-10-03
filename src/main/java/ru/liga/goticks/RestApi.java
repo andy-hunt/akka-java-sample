@@ -69,32 +69,35 @@ public class RestApi extends AllDirectives {
                                     // GET /events/:event
                                     CompletionStage<Optional<BoxOffice.Event>> stage = getEvent(event);
                                     return onSuccess(() -> stage,
-                                            performed -> {
-                                                if (performed.isPresent())
-                                                    return complete(StatusCodes.OK, performed.get(), Jackson.marshaller());
-                                                else
-                                                    return complete(StatusCodes.NOT_FOUND);
-                                            }
+                                        performed -> {
+                                            if (performed.isPresent())
+                                                return complete(StatusCodes.OK, performed.get(), Jackson.marshaller());
+                                            else
+                                                return complete(StatusCodes.NOT_FOUND);
+                                        }
                                     );
                                 })
                         )
                 ))),
-                pathPrefix("events", () -> path(PathMatchers.segment(), event -> route(
-                        pathEndOrSingleSlash(() ->
-                                get(() -> {
-                                    // DELETE /events/:event
-                                    CompletionStage<Optional<BoxOffice.Event>> stage = cancelEvent(event);
-                                    return onSuccess(() -> stage,
-                                            performed -> {
-                                                if (performed.isPresent())
-                                                    return complete(StatusCodes.OK, performed.get(), Jackson.marshaller());
-                                                else
-                                                    return complete(StatusCodes.NOT_FOUND);
-                                            }
-                                    );
-                                })
+                pathPrefix("events", () -> path(PathMatchers.segment().slash("tickets"), event ->
+                    pathEndOrSingleSlash(() ->
+                        post(() -> entity(
+                            // POST /events/:event
+                            Jackson.unmarshaller(TicketRequest.class),
+                                request -> {
+                                CompletionStage<TicketSeller.Tickets> stage = requestTickets(event, request.getTickets());
+                                return onSuccess(() -> stage,
+                                        performed -> {
+                                            if (!performed.getTickets().isEmpty())
+                                                return complete(StatusCodes.OK, performed, Jackson.marshaller());
+                                            else
+                                                return complete(StatusCodes.NOT_FOUND);
+                                        }
+                                );
+                            })
                         )
-                )))
+                    )
+                ))
             );
     }
 
@@ -123,13 +126,25 @@ public class RestApi extends AllDirectives {
                 .thenApply(obj -> (Optional<BoxOffice.Event>) obj);
     }
 
-    private CompletionStage<Optional<TicketSeller.Tickets>> requestTickets(String event, int tickets) {
+    private CompletionStage<TicketSeller.Tickets> requestTickets(String event, int tickets) {
         return PatternsCS
                 .ask(boxOffice, new BoxOffice.GetTickets(event, tickets), timeout)
-                .thenApply(obj -> (Optional<TicketSeller.Tickets>) obj);
+                .thenApply(obj -> (TicketSeller.Tickets) obj);
     }
 
     private static class EventDescription {
+        private int tickets;
+
+        public int getTickets() {
+            return tickets;
+        }
+
+        public void setTickets(int tickets) {
+            this.tickets = tickets;
+        }
+    }
+
+    private static class TicketRequest {
         private int tickets;
 
         public int getTickets() {

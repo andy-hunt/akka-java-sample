@@ -7,6 +7,7 @@ import akka.actor.Props;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,13 +38,12 @@ public class TicketSeller extends AbstractActor {
                         buyTickets = tickets.subList(0, buy.getTickets());
                         sender().tell(new Tickets(event, buyTickets), ActorRef.noSender());
                         tickets = tickets.subList(buy.getTickets(), tickets.size());
-                        sender().tell(new Tickets(event, tickets), ActorRef.noSender());
                     } else {
                         sender().tell(new Tickets(event), ActorRef.noSender());
                     }
                 })
                 .match(GetEvent.class, getEvent -> {
-                    sender().tell(new BoxOffice.Event(event, tickets.size()), ActorRef.noSender());
+                    sender().tell(Optional.of(new BoxOffice.Event(event, tickets.size())), ActorRef.noSender());
                 })
                 .match(Cancel.class, cancel -> {
                     sender().tell(new BoxOffice.Event(event, tickets.size()), ActorRef.noSender());

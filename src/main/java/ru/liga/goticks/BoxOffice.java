@@ -64,7 +64,7 @@ public class BoxOffice extends AbstractActor {
                     List<CompletableFuture<Optional<Event>>> futureEvents = new ArrayList<>();
                     for (ActorRef child : getContext().getChildren()) {
                         CompletableFuture<Optional<Event>> eventCompletionStage =
-                                PatternsCS.ask(child, new GetEvent(child.path().name()), duration)
+                                PatternsCS.ask(getSelf(), new GetEvent(child.path().name()), duration)
                                         .thenApply(e -> (Optional<Event>) e).toCompletableFuture();
                         futureEvents.add(eventCompletionStage);
                     }
