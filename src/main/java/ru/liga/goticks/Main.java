@@ -1,4 +1,4 @@
-package ru.liga;
+package ru.liga.goticks;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
