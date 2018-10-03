@@ -2,21 +2,15 @@ package ru.liga.goticks;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
 import akka.actor.Props;
-import akka.pattern.Patterns;
 import akka.pattern.PatternsCS;
-import scala.None;
 import scala.Option;
-import scala.concurrent.ExecutionContext;
 
-import java.lang.reflect.Parameter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,6 +18,7 @@ import java.util.stream.IntStream;
  * @author Repkin Andrey {@literal <arepkin@at-consulting.ru>}
  */
 public class BoxOffice extends AbstractActor {
+    public static final String NAME = "boxOffice" ;
     private Duration duration;
 
     public BoxOffice(Duration duration) {
@@ -131,13 +126,18 @@ public class BoxOffice extends AbstractActor {
         }
     }
 
-    private static class GetEvents {
+    public static class GetEvents {
 
     }
 
     public static class GetTickets {
         private String event;
         private int tickets;
+
+        public GetTickets(String event, int tickets) {
+            this.event = event;
+            this.tickets = tickets;
+        }
 
         public String getEvent() {
             return event;
@@ -158,6 +158,10 @@ public class BoxOffice extends AbstractActor {
 
     public static class CancelEvent {
         private String name;
+
+        public CancelEvent(String name) {
+            this.name = name;
+        }
 
         public String getName() {
             return name;
@@ -207,7 +211,7 @@ public class BoxOffice extends AbstractActor {
         }
     }
 
-    public static class EventCreated {
+    public static class EventCreated implements EventResponse {
         private Event event;
 
         public EventCreated(Event event) {
@@ -223,7 +227,7 @@ public class BoxOffice extends AbstractActor {
         }
     }
 
-    public static class EventExists {
+    public static class EventExists implements EventResponse {
         private Event event;
 
         public Event getEvent() {
@@ -233,5 +237,9 @@ public class BoxOffice extends AbstractActor {
         public void setEvent(Event event) {
             this.event = event;
         }
+    }
+
+    public interface EventResponse {
+
     }
 }

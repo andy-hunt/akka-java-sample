@@ -23,7 +23,9 @@ lazy val app = (project in file(".")).
         "com.typesafe.akka" %% "akka-http"  % akkaHttpVersion,
         "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
         "com.typesafe.akka" %% "akka-http-jackson"    % akkaHttpVersion,
-
+        "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
+        "ch.qos.logback"    %  "logback-classic" % "1.1.3",
+        
         "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
         "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
         "com.novocode" % "junit-interface" % "0.11" % Test
